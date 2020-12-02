@@ -1,78 +1,94 @@
 
+TARBALL_URL = https://github.com/open-quantum-safe/liboqs/archive
+TARBALL_FILENAME = 0.4.0.tar.gz
+TARBALL_CHECKSUM = 05836cd2b5c70197b3b6eed68b97d0ccb2c445061d5c19c15aef7c959842de0b
+EXTRACTED_FOLDER = liboqs-0.4.0
 
 ALL: \
-     GET_TOOLS \
-     GET_SRCS \
-     DO_BUILD \
-     DO_INSTALL
-	echo $@ Done.
+     #GET_TOOLS \
+     srcs/$(EXTRACTED_FOLDER)/build/lib/liboqs.so \
+     /usr/local/lib/liboqs.so
+	@echo $@ Done
 
 GET_TOOLS:
 	sudo apt update
 	sudo apt install --no-install-recommends -yV build-essential ninja-build wget cmake
-	echo $@ Done.
+	@echo $@ Done
 
-GET_SRCS: 
+$(TARBALL_FILENAME):
+	wget $(TARBALL_URL)/$(TARBALL_FILENAME)
+	@echo "$(TARBALL_CHECKSUM) $(TARBALL_FILENAME)" | sha256sum --check --status
+	@echo $@ Done
+
+srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt: $(TARBALL_FILENAME)
 	mkdir -p srcs
-	if [ ! -f 0.4.0.tar.gz ]; then wget https://github.com/open-quantum-safe/liboqs/archive/0.4.0.tar.gz && \
-	                               echo "05836cd2b5c70197b3b6eed68b97d0ccb2c445061d5c19c15aef7c959842de0b 0.4.0.tar.gz" | sha256sum --check --status; fi
-	if [ ! -f srcs/liboqs-0.4.0/CMakeLists.txt ]; then cd srcs && tar -zxvf ../0.4.0.tar.gz && cd ..; fi 
-	echo $@ Done.
+	cd srcs && tar -zxvf ../$(TARBALL_FILENAME) && cd ..
+	@echo "Change the modification time of our trigger file: srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt"
+	touch -m --no-create srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt
+	@echo $@ Done
 
-DO_BUILD:
-	mkdir -p srcs/liboqs-0.4.0/build
-	#if [ ! -f srcs/liboqs-0.4.0/build/build.ninja ]; then cd srcs/liboqs-0.4.0/build && cmake -DBUILD_SHARED_LIBS=OFF -GNinja ..; fi
-	#if [ ! -f srcs/liboqs-0.4.0/build/lib/liboqs.a ]; then cd srcs/liboqs-0.4.0/build && ninja; fi
-	if [ ! -f srcs/liboqs-0.4.0/build/build.ninja ]; then cd srcs/liboqs-0.4.0/build && cmake -DBUILD_SHARED_LIBS=ON -GNinja ..; fi
-	#if [ ! -f srcs/liboqs-0.4.0/build/lib/liboqs.so ]; then cd srcs/liboqs-0.4.0/build && ninja; fi
-	cd srcs/liboqs-0.4.0/build && ninja
-	echo $@ Done.
+srcs/$(EXTRACTED_FOLDER)/build/build.ninja: srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt
+	mkdir -p srcs/$(EXTRACTED_FOLDER)/build
+	cd srcs/$(EXTRACTED_FOLDER)/build && cmake -DBUILD_SHARED_LIBS=ON -GNinja ..
+	@echo "Change the modification time of our trigger file: srcs/$(EXTRACTED_FOLDER)/build/build.ninja"
+	touch -m --no-create srcs/$(EXTRACTED_FOLDER)/build/build.ninja
+	@echo $@ Done
 
-DO_INSTALL:
-	cd srcs/liboqs-0.4.0/build && sudo ninja install
+srcs/$(EXTRACTED_FOLDER)/build/lib/liboqs.so: srcs/$(EXTRACTED_FOLDER)/build/build.ninja
+	cd srcs/$(EXTRACTED_FOLDER)/build && ninja
+	@echo $@ Done
+
+/usr/local/lib/liboqs.so: srcs/$(EXTRACTED_FOLDER)/build/lib/liboqs.so
+	cd srcs/$(EXTRACTED_FOLDER)/build && sudo ninja install
+	@echo $@ Done
 
 CLEAN:
-	if [ -d "srcs/liboqs-0.4.0/build" ]; then rm -rf "srcs/liboqs-0.4.0/build"; fi
-	if [ -d "srcs/liboqs-0.4.0" ]; then rm -rf "srcs/liboqs-0.4.0"; fi
-	if [ -f 0.4.0.tar.gz ]; then rm 0.4.0.tar.gz; fi
+	if [ -d "srcs/$(EXTRACTED_FOLDER)/build" ]; then rm -rf "srcs/$(EXTRACTED_FOLDER)/build"; fi
+	if [ -d "srcs/$(EXTRACTED_FOLDER)" ]; then rm -rf "srcs/$(EXTRACTED_FOLDER)"; fi
+	if [ -d "srcs" ]; then rm -rf "srcs"; fi
+	if [ -f $(TARBALL_FILENAME) ]; then rm $(TARBALL_FILENAME); fi
+	@echo $@ Done
 
 
 # [0/1] Install the project...
 # -- Install configuration: ""
-# -- Installing: /usr/local/lib/liboqs.a
-# -- Installing: /usr/local/include/oqs/oqs.h
-# -- Installing: /usr/local/include/oqs/common.h
-# -- Installing: /usr/local/include/oqs/rand.h
-# -- Installing: /usr/local/include/oqs/aes.h
-# -- Installing: /usr/local/include/oqs/sha2.h
-# -- Installing: /usr/local/include/oqs/sha3.h
-# -- Installing: /usr/local/include/oqs/kem.h
-# -- Installing: /usr/local/include/oqs/sig.h
-# -- Installing: /usr/local/include/oqs/kem_bike.h
-# -- Installing: /usr/local/include/oqs/kem_frodokem.h
-# -- Installing: /usr/local/include/oqs/kem_sike.h
-# -- Installing: /usr/local/include/oqs/sig_picnic.h
-# -- Installing: /usr/local/include/oqs/sig_qtesla.h
-# -- Installing: /usr/local/include/oqs/kem_classic_mceliece.h
-# -- Installing: /usr/local/include/oqs/kem_hqc.h
-# -- Installing: /usr/local/include/oqs/kem_kyber.h
-# -- Installing: /usr/local/include/oqs/kem_newhope.h
-# -- Installing: /usr/local/include/oqs/kem_ntru.h
-# -- Installing: /usr/local/include/oqs/kem_saber.h
-# -- Installing: /usr/local/include/oqs/kem_threebears.h
-# -- Installing: /usr/local/include/oqs/sig_dilithium.h
-# -- Installing: /usr/local/include/oqs/sig_falcon.h
-# -- Installing: /usr/local/include/oqs/sig_mqdss.h
-# -- Installing: /usr/local/include/oqs/sig_rainbow.h
-# -- Installing: /usr/local/include/oqs/sig_sphincs.h
+# -- Installing: /usr/local/lib/liboqs.so.0.4.0
+# -- Up-to-date: /usr/local/lib/liboqs.so.0
+# -- Up-to-date: /usr/local/lib/liboqs.so
+# -- Up-to-date: /usr/local/include/oqs/oqs.h
+# -- Up-to-date: /usr/local/include/oqs/common.h
+# -- Up-to-date: /usr/local/include/oqs/rand.h
+# -- Up-to-date: /usr/local/include/oqs/aes.h
+# -- Up-to-date: /usr/local/include/oqs/sha2.h
+# -- Up-to-date: /usr/local/include/oqs/sha3.h
+# -- Up-to-date: /usr/local/include/oqs/kem.h
+# -- Up-to-date: /usr/local/include/oqs/sig.h
+# -- Up-to-date: /usr/local/include/oqs/kem_bike.h
+# -- Up-to-date: /usr/local/include/oqs/kem_frodokem.h
+# -- Up-to-date: /usr/local/include/oqs/kem_sike.h
+# -- Up-to-date: /usr/local/include/oqs/sig_picnic.h
+# -- Up-to-date: /usr/local/include/oqs/sig_qtesla.h
+# -- Up-to-date: /usr/local/include/oqs/kem_classic_mceliece.h
+# -- Up-to-date: /usr/local/include/oqs/kem_hqc.h
+# -- Up-to-date: /usr/local/include/oqs/kem_kyber.h
+# -- Up-to-date: /usr/local/include/oqs/kem_newhope.h
+# -- Up-to-date: /usr/local/include/oqs/kem_ntru.h
+# -- Up-to-date: /usr/local/include/oqs/kem_saber.h
+# -- Up-to-date: /usr/local/include/oqs/kem_threebears.h
+# -- Up-to-date: /usr/local/include/oqs/sig_dilithium.h
+# -- Up-to-date: /usr/local/include/oqs/sig_falcon.h
+# -- Up-to-date: /usr/local/include/oqs/sig_mqdss.h
+# -- Up-to-date: /usr/local/include/oqs/sig_rainbow.h
+# -- Up-to-date: /usr/local/include/oqs/sig_sphincs.h
 # -- Installing: /usr/local/include/oqs/oqsconfig.h
+
 
 MAYBE_GET_TOOLS:
 	sudo apt update
 	##############################################
 	REQUIRED_PKG="build-essential"
 	PKG_OK=$(dpkg-query -W --showformat='${Status}\n' "${REQUIRED_PKG}" | grep "install ok installed")
-	echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
+	@echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
 	if [ "${PKG_OK}" == "" ]; then
 	  echo "Package not found. Installing ${REQUIRED_PKG} ..."
 	  sudo apt-get --yes install "${REQUIRED_PKG}"
@@ -80,7 +96,7 @@ MAYBE_GET_TOOLS:
 	##############################################
 	REQUIRED_PKG = "wget"
 	PKG_OK = $(dpkg-query -W --showformat='${Status}\n' "${REQUIRED_PKG}" | grep "install ok installed")
-	echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
+	@echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
 	if [ "$PKG_OK" == "" ]; then
 	  echo "Package not found. Installing ${REQUIRED_PKG} ..."
 	  sudo apt-get --yes install "${REQUIRED_PKG}"
@@ -88,7 +104,7 @@ MAYBE_GET_TOOLS:
 	##############################################
 	REQUIRED_PKG = "cmake"
 	PKG_OK = $(dpkg-query -W --showformat='${Status}\n' "${REQUIRED_PKG}" | grep "install ok installed")
-	echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
+	@echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
 	if [ "$PKG_OK" == "" ]; then
 	  echo "Package not found. Installing ${REQUIRED_PKG} ..."
 	  sudo apt-get --yes install "${REQUIRED_PKG}"
@@ -96,11 +112,11 @@ MAYBE_GET_TOOLS:
 	##############################################
 	REQUIRED_PKG = "ninja-build"
 	PKG_OK = $(dpkg-query -W --showformat='${Status}\n' "${REQUIRED_PKG}" | grep "install ok installed")
-	echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
+	@echo "Checking for ${REQUIRED_PKG}: ${PKG_OK}"
 	if [ "$PKG_OK" == "" ]; then
 	  echo "Package not found. Installing ${REQUIRED_PKG} ..."
 	  sudo apt-get --yes install "${REQUIRED_PKG}"
 	fi
 	##############################################
-	echo $@ Done.
+	@echo $@ Done
 
