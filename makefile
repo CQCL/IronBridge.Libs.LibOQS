@@ -5,7 +5,6 @@ TARBALL_CHECKSUM = 05836cd2b5c70197b3b6eed68b97d0ccb2c445061d5c19c15aef7c959842d
 EXTRACTED_FOLDER = liboqs-0.4.0
 
 ALL: \
-     #GET_TOOLS \
      srcs/$(EXTRACTED_FOLDER)/build/lib/liboqs.so \
      /usr/local/lib/liboqs.so
 	@echo $@ Done
