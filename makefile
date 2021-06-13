@@ -10,7 +10,7 @@ ALL: \
 	@echo $@ Done
 
 GET_TOOLS:
-	sudo apt update
+	#sudo apt update
 	sudo apt install --no-install-recommends -yV build-essential ninja-build wget cmake
 	@echo $@ Done
 
