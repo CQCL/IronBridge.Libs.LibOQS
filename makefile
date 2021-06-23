@@ -21,7 +21,7 @@ $(TARBALL_FILENAME):
 
 srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt: $(TARBALL_FILENAME)
 	mkdir -p srcs
-	cd srcs && tar -zxvf ../$(TARBALL_FILENAME) && cd ..
+	cd srcs && tar -zxf ../$(TARBALL_FILENAME) && cd ..
 	@echo "Change the modification time of our trigger file: srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt"
 	touch -m --no-create srcs/$(EXTRACTED_FOLDER)/CMakeLists.txt
 	@echo $@ Done
@@ -118,4 +118,20 @@ MAYBE_GET_TOOLS:
 	fi
 	##############################################
 	@echo $@ Done
+
+all: ALL
+
+build: ALL
+
+clean: CLEAN
+
+buildall: GET_TOOLS ALL
+
+rebuild: CLEAN ALL
+
+rebuildall: GET_TOOLS CLEAN ALL
+
+get_tools: GET_TOOLS
+
+install_deps: GET_TOOLS
 
