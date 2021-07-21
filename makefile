@@ -33,6 +33,8 @@ srcs/$(EXTRACTED_FOLDER)/build/build.ninja: srcs/$(EXTRACTED_FOLDER)/CMakeLists.
 	touch -m --no-create srcs/$(EXTRACTED_FOLDER)/build/build.ninja
 	@echo $@ Done
 
+# ninja --quiet option will be supported from Ninja 1.11.0
+
 srcs/$(EXTRACTED_FOLDER)/build/lib/liboqs.so: srcs/$(EXTRACTED_FOLDER)/build/build.ninja
 	cd srcs/$(EXTRACTED_FOLDER)/build && ninja
 	@echo $@ Done
